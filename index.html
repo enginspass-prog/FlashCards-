@@ -1,0 +1,1309 @@
+<!DOCTYPE html>
+<html lang="fa" dir="ltr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no"/>
+<meta name="theme-color" content="#0a1628"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="FlashCards IL"/>
+<link rel="manifest" href="manifest.json"/>
+<link rel="apple-touch-icon" href="icons/icon-192.png"/>
+<title>FlashCards Intermediate Level</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Noto+Sans:wght@400;500;700&display=swap"/>
+<style>
+:root{
+  --bg:#06101e;--bg2:#0a1628;--bg3:#0d1f38;
+  --surface:#0f2040;--surface2:#0c1830;--card:#101e3a;
+  --border:#1a3258;--border2:#1e3d6e;
+  --accent:#3d8ef0;--accent2:#5ba3ff;--gold:#f5c842;--gold2:#ffd966;
+  --green:#3ecf6e;--red:#e85c5c;--orange:#f0923a;--purple:#9b6dff;--teal:#3ecfcf;
+  --text:#c8ddf8;--text2:#6a90bb;--text3:#2a4a6e;--textw:#ffffff;
+  --A1:#3ecf6e;--A2:#3ecfcf;--B1:#3d8ef0;--B2:#9b6dff;--C1:#f0923a;--C2:#e85c5c;
+  --font-d:'Playfair Display',Georgia,serif;
+  --font-m:'JetBrains Mono',monospace;
+  --font-fa:'Noto Sans',Tahoma,sans-serif;
+  --r:18px;--r2:12px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden;background:var(--bg)}
+body{font-family:var(--font-m);color:var(--text);display:flex;flex-direction:column;max-width:500px;margin:0 auto;position:relative}
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:var(--bg2)}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:99px}
+
+/* ══ OVERLAYS ══════════════════════════════════════════ */
+.overlay{position:fixed;inset:0;z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;background:var(--bg)}
+.overlay.hidden{display:none!important}
+
+/* ── Welcome Screen ── */
+#welcome-screen{background:radial-gradient(ellipse at 50% 0%,#0d2550 0%,var(--bg) 70%)}
+.wc-stars{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.star{position:absolute;border-radius:50%;background:#fff;animation:twinkle var(--d,3s) var(--delay,0s) infinite}
+@keyframes twinkle{0%,100%{opacity:.1;transform:scale(1)}50%{opacity:.8;transform:scale(1.3)}}
+.wc-logo-wrap{position:relative;margin-bottom:8px}
+.wc-logo-glow{position:absolute;inset:-20px;border-radius:50%;background:radial-gradient(circle,rgba(61,142,240,.25),transparent 70%);animation:glowPulse 3s infinite}
+@keyframes glowPulse{0%,100%{opacity:.6;transform:scale(1)}50%{opacity:1;transform:scale(1.1)}}
+.wc-logo-icon{font-size:72px;position:relative;animation:floatIcon 4s ease-in-out infinite}
+@keyframes floatIcon{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+.wc-title{font-family:var(--font-d);font-size:30px;color:var(--textw);text-align:center;margin-bottom:4px;animation:fadeUp .8s .2s both}
+.wc-title span{color:var(--gold)}
+.wc-subtitle{font-size:10px;letter-spacing:3px;color:var(--text2);text-align:center;text-transform:uppercase;margin-bottom:28px;animation:fadeUp .8s .4s both}
+.wc-desc{background:rgba(13,32,64,.7);border:1px solid var(--border2);border-radius:var(--r);padding:18px 20px;max-width:420px;width:100%;margin-bottom:24px;animation:fadeUp .8s .6s both;backdrop-filter:blur(8px)}
+.wc-desc p{font-size:12px;color:var(--text2);line-height:1.9;text-align:center}
+.wc-desc p b{color:var(--accent2)}
+.wc-levels{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin:14px 0 4px;animation:fadeUp .8s .7s both}
+.wc-level-badge{padding:4px 12px;border-radius:99px;font-size:10px;border:1px solid;font-weight:700;letter-spacing:1px}
+.wc-start-btn{width:100%;max-width:320px;padding:16px;border-radius:var(--r);border:none;background:linear-gradient(135deg,#1a4fa0,var(--accent));color:#fff;font-size:15px;font-family:var(--font-m);cursor:pointer;letter-spacing:1px;position:relative;overflow:hidden;animation:fadeUp .8s .9s both;box-shadow:0 8px 32px rgba(61,142,240,.3)}
+.wc-start-btn::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,transparent,rgba(255,255,255,.1));pointer-events:none}
+.wc-start-btn:active{transform:scale(.97)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── API Key Screen ── */
+#apikey-screen{background:var(--bg)}
+.ak-icon{font-size:52px;margin-bottom:16px}
+.ak-title{font-family:var(--font-d);font-size:22px;color:var(--accent2);margin-bottom:6px}
+.ak-sub{font-size:10px;color:var(--text3);letter-spacing:2px;margin-bottom:24px;text-transform:uppercase}
+.ak-card{width:100%;max-width:420px;background:var(--surface);border:1px solid var(--border2);border-radius:var(--r);padding:22px 20px}
+.ak-steps{background:var(--bg3);border-radius:10px;padding:14px;margin-bottom:16px;font-size:10px;color:var(--text2);line-height:2.3}
+.ak-steps b{color:var(--accent2)}
+.ak-steps a{color:var(--accent);text-decoration:none}
+.field-label{font-size:9px;letter-spacing:2px;color:var(--accent);text-transform:uppercase;margin-bottom:6px}
+.field-input{width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:10px;color:var(--text);font-family:var(--font-m);font-size:11px;padding:12px 14px;outline:none;margin-bottom:10px}
+.field-input:focus{border-color:var(--accent)}
+.field-input::placeholder{color:var(--text3)}
+.primary-btn{width:100%;padding:14px;border-radius:12px;border:none;background:linear-gradient(135deg,#1a4fa0,var(--accent));color:#fff;font-size:13px;font-family:var(--font-m);cursor:pointer;letter-spacing:.5px}
+.primary-btn:active{opacity:.85}
+.ak-err{font-size:10px;color:var(--red);min-height:16px;text-align:center;margin-top:8px}
+.ak-note{font-size:9px;color:var(--text3);text-align:center;margin-top:14px;line-height:1.9}
+
+/* ── Level Select Screen ── */
+#level-screen{background:var(--bg)}
+.ls-title{font-family:var(--font-d);font-size:24px;color:var(--textw);text-align:center;margin-bottom:6px}
+.ls-sub{font-size:10px;color:var(--text3);text-align:center;letter-spacing:2px;text-transform:uppercase;margin-bottom:28px}
+.ls-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;width:100%;max-width:420px}
+.ls-card{border-radius:var(--r);border:1px solid;padding:18px 14px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;text-align:center}
+.ls-card::before{content:'';position:absolute;inset:0;background:currentColor;opacity:.05;transition:opacity .2s}
+.ls-card:hover::before,.ls-card:active::before{opacity:.12}
+.ls-card:active{transform:scale(.96)}
+.ls-emoji{font-size:28px;margin-bottom:8px}
+.ls-name{font-size:14px;font-weight:700;letter-spacing:1px;margin-bottom:4px}
+.ls-range{font-size:9px;opacity:.7;letter-spacing:.5px}
+.ls-desc{font-size:9px;color:var(--text3);margin-top:4px;line-height:1.5}
+.ls-skip{margin-top:20px;font-size:10px;color:var(--text3);cursor:pointer;letter-spacing:1px;text-decoration:underline;text-underline-offset:3px}
+
+/* ══ APP SHELL ══════════════════════════════════════════ */
+#app-shell{display:flex;flex-direction:column;height:100%;opacity:0;transition:opacity .4s}
+#app-shell.visible{opacity:1}
+
+/* NAV */
+#nav{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:rgba(6,16,30,.97);border-bottom:1px solid var(--border);flex-shrink:0;backdrop-filter:blur(12px)}
+.nav-logo{display:flex;align-items:center;gap:8px}
+.nav-icon{font-size:20px}
+.nav-text{font-family:var(--font-d);font-size:15px;color:var(--accent2);line-height:1.1}
+.nav-text small{display:block;font-family:var(--font-m);font-size:8px;color:var(--text3);letter-spacing:2px;text-transform:uppercase}
+.nav-level-badge{padding:3px 10px;border-radius:99px;font-size:9px;font-weight:700;letter-spacing:1px;cursor:pointer;border:1px solid;transition:opacity .2s}
+.nav-level-badge:hover{opacity:.8}
+#nav-stats{display:flex;gap:10px;font-size:9px;color:var(--text3);align-items:center}
+#nav-stats span b{color:var(--accent2)}
+
+/* TABS */
+#tabs{display:flex;background:var(--bg2);border-bottom:1px solid var(--border);flex-shrink:0}
+.tab{flex:1;padding:10px 2px;text-align:center;font-size:8px;letter-spacing:.8px;color:var(--text3);border:none;background:transparent;text-transform:uppercase;cursor:pointer;border-bottom:2px solid transparent;font-family:var(--font-m);transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:3px}
+.tab .ti{font-size:14px}
+.tab.active{color:var(--accent2);border-bottom-color:var(--accent2)}
+
+/* SCREENS */
+#screens{flex:1;overflow-y:auto;overflow-x:hidden}
+.screen{display:none;padding:14px 14px 80px;animation:fadeUp .25s ease}
+.screen.active{display:block}
+
+/* ══ STUDY ════════════════════════════════════════════ */
+#study-screen{display:flex;flex-direction:column;align-items:center;padding:12px 12px 80px}
+
+/* Session bar */
+#sess-bar{width:100%;max-width:440px;background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:10px 14px;margin-bottom:10px;display:flex;align-items:center;gap:10px}
+#sess-prog-bg{flex:1;height:4px;background:var(--border);border-radius:99px}
+#sess-prog-fill{height:4px;border-radius:99px;transition:width .5s;background:linear-gradient(90deg,#1a5fb4,var(--accent))}
+#sess-counts{font-size:9px;color:var(--text3);white-space:nowrap}
+.sess-stat{display:flex;align-items:center;gap:3px}
+.sess-dot{width:6px;height:6px;border-radius:50%}
+
+/* Audio bar */
+#audio-bar{display:flex;align-items:center;gap:6px;width:100%;max-width:440px;margin-bottom:10px;padding:7px 12px;background:var(--surface2);border-radius:10px;border:1px solid var(--border)}
+#audio-bar label{font-size:8px;color:var(--text3);letter-spacing:1px;text-transform:uppercase;white-space:nowrap}
+#voice-select,#speed-select{background:var(--bg3);border:1px solid var(--border);color:var(--text2);font-size:9px;font-family:var(--font-m);border-radius:6px;padding:3px 5px;outline:none}
+#voice-select{flex:1;min-width:0}
+#speed-select{width:60px}
+
+/* ── CARD ── */
+#card-wrap{width:100%;max-width:440px;perspective:1000px}
+
+#flashcard{border-radius:var(--r);overflow:hidden;cursor:pointer;min-height:350px;position:relative;transition:transform .12s}
+#flashcard:active{transform:scale(.98)}
+
+/* Decorative gradient bg */
+#card-front,#card-back{min-height:350px;padding:24px 22px;position:relative;overflow:hidden}
+#card-front{background:linear-gradient(145deg,#0e2240 0%,#0a1a35 60%,#0d1e3a 100%);border:1px solid var(--border2);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+#card-back{background:linear-gradient(145deg,#0d2540 0%,#0a1d38 100%);border:1px solid #1a3d6a}
+
+/* Orb decorations */
+.card-orb{position:absolute;border-radius:50%;pointer-events:none;filter:blur(40px)}
+.orb1{width:200px;height:200px;background:rgba(61,142,240,.08);top:-50px;right:-50px}
+.orb2{width:150px;height:150px;background:rgba(155,109,255,.06);bottom:-30px;left:-30px}
+
+/* Level ribbon */
+.card-level-ribbon{position:absolute;top:14px;right:14px;padding:3px 10px;border-radius:99px;font-size:8px;font-weight:700;letter-spacing:1.5px;border:1px solid}
+
+/* Front content */
+#word-pos{font-size:8px;letter-spacing:3px;color:var(--accent);text-transform:uppercase;margin-bottom:10px;opacity:.8}
+#word-main{font-family:var(--font-d);font-size:38px;color:#e8f4ff;line-height:1;margin-bottom:10px;word-break:break-word}
+#word-pron-row{display:flex;align-items:center;gap:8px;margin-bottom:6px;justify-content:center}
+#word-pron{font-size:14px;color:var(--accent2);letter-spacing:1px}
+.audio-btn{background:none;border:1px solid var(--border2);border-radius:50%;width:30px;height:30px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--accent2);font-size:12px;transition:all .2s;flex-shrink:0}
+.audio-btn:hover{background:rgba(61,142,240,.15);border-color:var(--accent2)}
+.audio-btn.playing{background:rgba(61,142,240,.2);border-color:var(--accent2);animation:audioPulse 1s infinite}
+@keyframes audioPulse{0%,100%{box-shadow:0 0 0 0 rgba(61,142,240,.4)}50%{box-shadow:0 0 0 6px rgba(61,142,240,.0)}}
+#word-synonyms{font-size:9px;color:var(--text3);margin-top:8px}
+
+/* Mastery ring */
+.mastery-wrap{margin-top:20px;display:flex;flex-direction:column;align-items:center;gap:6px}
+.mastery-ring-svg{transform:rotate(-90deg)}
+.mastery-ring-bg{fill:none;stroke:var(--border);stroke-width:3}
+.mastery-ring-fill{fill:none;stroke-width:3;stroke-linecap:round;transition:stroke-dashoffset .6s,stroke .4s}
+.mastery-pct{font-size:10px;color:var(--text3)}
+#flip-hint{font-size:8px;color:var(--text3);margin-top:14px;letter-spacing:2px;animation:hintPulse 2.5s infinite}
+@keyframes hintPulse{0%,100%{opacity:.4}50%{opacity:.9}}
+
+/* Back content */
+.section{margin-bottom:12px}
+.sec-label{font-size:8px;letter-spacing:2px;color:var(--accent);text-transform:uppercase;margin-bottom:5px;display:flex;align-items:center;gap:5px}
+.sec-label::after{content:'';flex:1;height:1px;background:var(--border);border-radius:99px}
+#back-word-row{display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+#bw-text{font-family:var(--font-d);font-size:18px;color:var(--accent2)}
+#bpron{font-size:10px;color:var(--text3);font-family:var(--font-m)}
+.fa-text{font-family:var(--font-fa);font-size:20px;color:#f0e8c0;direction:rtl;text-align:right;line-height:1.5;font-weight:500}
+.en-text{font-size:12px;color:var(--text2);line-height:1.7}
+.example{background:rgba(30,61,110,.15);border-left:2px solid var(--border2);padding:7px 10px;border-radius:0 8px 8px 0;font-size:11px;color:#587aaa;line-height:1.65;margin-bottom:7px}
+.ex-num{color:var(--accent);margin-right:4px;font-size:8px;font-weight:700}
+
+/* Rate buttons */
+#rate-row{display:flex;gap:7px;width:100%;max-width:440px;margin-top:10px}
+.rate-btn{flex:1;padding:11px 2px;border-radius:12px;border:1px solid;font-size:9px;cursor:pointer;font-family:var(--font-m);transition:all .15s;line-height:1.5;text-align:center;background:transparent;position:relative;overflow:hidden}
+.rate-btn .rb-emoji{font-size:14px;display:block;margin-bottom:2px}
+.rate-btn:active{transform:scale(.92)}
+#r0{border-color:#5a1020;color:var(--red)}#r0:hover{background:rgba(90,16,32,.25)}
+#r1{border-color:#5a3a10;color:var(--orange)}#r1:hover{background:rgba(90,58,16,.25)}
+#r2{border-color:#1a4a20;color:var(--green)}#r2:hover{background:rgba(26,74,32,.25)}
+#r3{border-color:#1a3a5a;color:#60a5fa}#r3:hover{background:rgba(26,58,90,.25)}
+
+#flip-btn{width:100%;max-width:440px;margin-top:9px;padding:12px;border-radius:12px;border:1px solid var(--border2);background:rgba(26,50,90,.08);color:var(--text3);font-size:11px;font-family:var(--font-m);cursor:pointer;letter-spacing:1px;transition:all .2s}
+#flip-btn:hover{border-color:var(--accent2);color:var(--accent2)}
+
+/* Loading */
+#loading-card{width:100%;max-width:440px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:50px 24px;text-align:center}
+.loader{display:flex;justify-content:center;gap:6px;margin-top:14px}
+.dot{width:7px;height:7px;background:var(--accent);border-radius:50%;animation:dotBounce 1.2s infinite}
+.dot:nth-child(2){animation-delay:.2s;background:var(--purple)}
+.dot:nth-child(3){animation-delay:.4s;background:var(--teal)}
+@keyframes dotBounce{0%,80%,100%{transform:scale(1);opacity:.5}40%{transform:scale(1.4);opacity:1}}
+
+/* Done */
+#done-card{width:100%;max-width:440px;text-align:center;padding:36px 20px}
+.done-confetti{font-size:44px;margin-bottom:12px;animation:bounceIn .5s ease}
+@keyframes bounceIn{0%{transform:scale(.7)}60%{transform:scale(1.1)}100%{transform:scale(1)}}
+#done-title{font-family:var(--font-d);font-size:22px;color:var(--accent2);margin-bottom:6px}
+#done-sub{font-size:11px;color:var(--text3);margin-bottom:22px;line-height:1.7}
+.done-stats{display:flex;gap:12px;justify-content:center;margin-bottom:22px}
+.done-stat{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 16px;text-align:center}
+.done-stat-num{font-family:var(--font-d);font-size:24px;color:var(--accent2)}
+.done-stat-label{font-size:9px;color:var(--text3);margin-top:2px}
+#continue-btn{padding:13px 28px;border-radius:12px;border:1px solid #1a5fb4;background:rgba(26,95,180,.12);color:var(--accent2);font-size:12px;font-family:var(--font-m);cursor:pointer;letter-spacing:1px}
+
+/* Slide animations */
+@keyframes sRight{from{transform:translateX(0);opacity:1}to{transform:translateX(120%);opacity:0}}
+@keyframes sLeft{from{transform:translateX(0);opacity:1}to{transform:translateX(-120%);opacity:0}}
+.slide-right{animation:sRight .3s ease forwards}
+.slide-left{animation:sLeft .3s ease forwards}
+.hidden{display:none!important}
+
+/* ══ STATS ═══════════════════════════════════════════ */
+.sc{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:10px}
+.sc-title{font-size:8px;letter-spacing:3px;color:var(--accent);text-transform:uppercase;margin-bottom:14px}
+.big-num{font-family:var(--font-d);font-size:42px;color:var(--accent2);line-height:1}
+.big-label{font-size:9px;color:var(--text3);margin-top:3px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:10px}
+.mini{background:var(--surface2);border-radius:10px;padding:13px;text-align:center;border:1px solid var(--border)}
+.mini-num{font-family:var(--font-d);font-size:22px}
+.mini-label{font-size:8px;color:var(--text3);margin-top:2px}
+.prog-bg{background:var(--bg3);border-radius:99px;height:5px}
+.prog-fill{height:5px;border-radius:99px;transition:width .5s}
+.dist-row{display:flex;align-items:center;gap:8px;margin-bottom:9px}
+.dist-lbl{font-size:9px;width:50px;flex-shrink:0;font-weight:700}
+.dist-cnt{font-size:9px;width:26px;text-align:right}
+
+/* Level breakdown */
+.lv-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.lv-badge{width:28px;height:16px;border-radius:99px;font-size:7px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:1px solid}
+.lv-bar-bg{flex:1;background:var(--bg3);border-radius:99px;height:6px}
+.lv-bar-fill{height:6px;border-radius:99px;transition:width .5s}
+.lv-cnt{font-size:9px;color:var(--text2);width:30px;text-align:right}
+
+/* ══ WORDS ════════════════════════════════════════════ */
+.word-chip{padding:4px 9px;border-radius:99px;font-size:9px;border:1px solid;cursor:pointer;background:transparent;font-family:var(--font-m);transition:opacity .15s}
+.word-chip:hover{opacity:.75}
+.chip-new{border-color:var(--border2);color:var(--text3)}
+.chip-learning{border-color:#5a3a10;color:var(--orange)}
+.chip-known{border-color:#1a4a20;color:var(--green)}
+.word-list{display:flex;flex-wrap:wrap;gap:5px;margin-top:10px}
+.search-box{width:100%;padding:10px 13px;background:var(--surface2);border:1px solid var(--border2);border-radius:10px;color:var(--text);font-family:var(--font-m);font-size:12px;outline:none;margin-bottom:10px}
+.search-box::placeholder{color:var(--text3)}
+.search-box:focus{border-color:var(--accent)}
+.filter-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.filter-chip{padding:4px 10px;border-radius:99px;font-size:9px;border:1px solid;cursor:pointer;background:transparent;font-family:var(--font-m);font-weight:700;transition:all .15s}
+.filter-chip.active{color:#fff}
+
+/* ══ FETCH ════════════════════════════════════════════ */
+.fetch-btn{width:100%;padding:13px;border-radius:12px;border:1px solid #1a5fb4;background:rgba(26,95,180,.08);color:var(--accent2);font-size:12px;font-family:var(--font-m);cursor:pointer;letter-spacing:.5px;transition:all .2s;margin-bottom:9px;text-align:center;display:block}
+.fetch-btn:hover:not(:disabled){background:rgba(26,95,180,.22)}
+.fetch-btn:disabled{opacity:.3;cursor:not-allowed}
+.fetch-btn.danger{border-color:#5a1020;background:rgba(90,16,32,.08);color:var(--red)}
+.log-box{background:#030810;border-radius:10px;padding:10px;font-size:10px;max-height:160px;overflow-y:auto;line-height:2.1;margin-top:8px;display:none}
+.log-ok{color:var(--green)}.log-err{color:var(--red)}.log-info{color:#60a5fa}
+
+/* ══ ABOUT ════════════════════════════════════════════ */
+.about-hero{background:linear-gradient(145deg,var(--bg3),var(--surface));border:1px solid var(--border2);border-radius:var(--r);padding:24px 20px;text-align:center;margin-bottom:12px;position:relative;overflow:hidden}
+.about-hero::before{content:'📚';position:absolute;font-size:120px;opacity:.04;right:-20px;bottom:-20px;line-height:1}
+.about-name{font-family:var(--font-d);font-size:22px;color:var(--textw);margin-bottom:4px}
+.about-by{font-size:10px;color:var(--text2);letter-spacing:1px;margin-bottom:14px}
+.about-by b{color:var(--gold)}
+.about-badge-row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.about-badge{padding:4px 12px;border-radius:99px;font-size:9px;font-weight:700;letter-spacing:1px}
+.about-section{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px;margin-bottom:10px}
+.about-section-title{font-size:9px;letter-spacing:2px;color:var(--accent);text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.about-section-title::after{content:'';flex:1;height:1px;background:var(--border)}
+.about-item{display:flex;align-items:flex-start;gap:10px;margin-bottom:10px;font-size:11px;color:var(--text2);line-height:1.7}
+.about-item:last-child{margin:0}
+.about-item-icon{font-size:16px;flex-shrink:0;margin-top:1px}
+.about-item b{color:var(--text)}
+.share-btn{width:100%;padding:13px;border-radius:12px;border:1px solid var(--gold);background:rgba(245,200,66,.08);color:var(--gold);font-size:12px;font-family:var(--font-m);cursor:pointer;letter-spacing:.5px;transition:all .2s;text-align:center;display:block;margin-bottom:8px}
+.share-btn:hover{background:rgba(245,200,66,.18)}
+
+/* ══ CONFIG ═══════════════════════════════════════════ */
+.cfg-row{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border)}
+.cfg-row:last-child{border:none}
+.cfg-label{font-size:11px;color:var(--text)}
+.cfg-desc{font-size:9px;color:var(--text3);margin-top:2px}
+.num-btn{width:28px;height:28px;border-radius:8px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.num-val{font-size:13px;color:var(--accent2);min-width:26px;text-align:center}
+select.ss{background:var(--surface2);border:1px solid var(--border2);color:var(--text2);font-size:10px;font-family:var(--font-m);border-radius:8px;padding:6px 8px;outline:none;cursor:pointer}
+.key-input{width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:10px;color:var(--text);font-family:var(--font-m);font-size:10px;padding:10px 12px;outline:none;margin:8px 0}
+.key-input:focus{border-color:var(--accent)}
+
+/* ══ TOAST ════════════════════════════════════════════ */
+#toast{position:fixed;top:60px;left:50%;transform:translateX(-50%) translateY(-8px);background:var(--surface);border:1px solid var(--border2);border-radius:10px;padding:9px 18px;font-size:11px;color:var(--text);z-index:500;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap;max-width:90vw;text-align:center;box-shadow:0 8px 24px rgba(0,0,0,.4)}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* Auto-fetch progress */
+#auto-fetch-bar{width:100%;max-width:440px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:8px 12px;margin-bottom:10px;display:none;align-items:center;gap:8px;font-size:9px;color:var(--text3)}
+#auto-fetch-bar.show{display:flex}
+#af-prog-bg{flex:1;height:3px;background:var(--border);border-radius:99px}
+#af-prog-fill{height:3px;border-radius:99px;background:linear-gradient(90deg,var(--purple),var(--accent));transition:width .4s}
+</style>
+</head>
+<body>
+
+<!-- ══ WELCOME SCREEN ══════════════════════════════════ -->
+<div id="welcome-screen" class="overlay">
+  <div class="wc-stars" id="stars"></div>
+  <div class="wc-logo-wrap">
+    <div class="wc-logo-glow"></div>
+    <div class="wc-logo-icon">📚</div>
+  </div>
+  <div class="wc-title">FlashCards <span>IL</span></div>
+  <div class="wc-subtitle">English Vocabulary · یادگیری لغت</div>
+  <div class="wc-desc">
+    <p>
+      یادگیری هوشمند لغات انگلیسی با سیستم تکرار فاصله‌دار<br>
+      <b>۱۰۰۰+ لغت</b> در شش سطح · تلفظ آمریکایی · معنی فارسی<br>
+      برای هر کسی که می‌خواد انگلیسیش رو قوی کنه 🎯
+    </p>
+    <div class="wc-levels">
+      <span class="wc-level-badge" style="color:var(--A1);border-color:var(--A1)">A1</span>
+      <span class="wc-level-badge" style="color:var(--A2);border-color:var(--A2)">A2</span>
+      <span class="wc-level-badge" style="color:var(--B1);border-color:var(--B1)">B1</span>
+      <span class="wc-level-badge" style="color:var(--B2);border-color:var(--B2)">B2</span>
+      <span class="wc-level-badge" style="color:var(--C1);border-color:var(--C1)">C1</span>
+      <span class="wc-level-badge" style="color:var(--C2);border-color:var(--C2)">C2</span>
+    </div>
+  </div>
+  <button class="wc-start-btn" id="wc-start-btn">🚀 شروع می‌کنیم!</button>
+</div>
+
+<!-- ══ API KEY SCREEN ═══════════════════════════════════ -->
+<div id="apikey-screen" class="overlay hidden">
+  <div class="ak-icon">🔑</div>
+  <div class="ak-title">API Key لازمه</div>
+  <div class="ak-sub">برای ترجمه و جمله‌سازی</div>
+  <div class="ak-card">
+    <div class="ak-steps">
+      <b>مرحله ۱</b> → برو به <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a><br>
+      <b>مرحله ۲</b> → Sign up رایگان<br>
+      <b>مرحله ۳</b> → API Keys → Create Key<br>
+      <b>مرحله ۴</b> → کلید رو اینجا وارد کن
+    </div>
+    <div class="field-label">API Key</div>
+    <input class="field-input" id="ak-input" type="password" placeholder="sk-ant-api03-..." autocomplete="off" spellcheck="false"/>
+    <button class="primary-btn" id="ak-save-btn">✓ ذخیره و ادامه</button>
+    <div class="ak-err" id="ak-err"></div>
+    <div class="ak-note">🔒 فقط روی همین دستگاه ذخیره می‌شه</div>
+  </div>
+</div>
+
+<!-- ══ LEVEL SELECT SCREEN ═════════════════════════════ -->
+<div id="level-screen" class="overlay hidden">
+  <div class="ls-title">سطح خودت رو انتخاب کن</div>
+  <div class="ls-sub">بعداً می‌تونی تغییر بدی</div>
+  <div class="ls-grid">
+    <div class="ls-card" data-level="A1" style="color:var(--A1);border-color:var(--A1)">
+      <div class="ls-emoji">🌱</div>
+      <div class="ls-name">A1</div>
+      <div class="ls-range">Beginner</div>
+      <div class="ls-desc">مبتدی · اولین قدم</div>
+    </div>
+    <div class="ls-card" data-level="A2" style="color:var(--A2);border-color:var(--A2)">
+      <div class="ls-emoji">🌿</div>
+      <div class="ls-name">A2</div>
+      <div class="ls-range">Elementary</div>
+      <div class="ls-desc">مقدماتی · پایه</div>
+    </div>
+    <div class="ls-card" data-level="B1" style="color:var(--B1);border-color:var(--B1)">
+      <div class="ls-emoji">🌳</div>
+      <div class="ls-name">B1</div>
+      <div class="ls-range">Intermediate</div>
+      <div class="ls-desc">متوسط · روزمره</div>
+    </div>
+    <div class="ls-card" data-level="B2" style="color:var(--B2);border-color:var(--B2)">
+      <div class="ls-emoji">🦅</div>
+      <div class="ls-name">B2</div>
+      <div class="ls-range">Upper-Inter.</div>
+      <div class="ls-desc">فوق متوسط</div>
+    </div>
+    <div class="ls-card" data-level="C1" style="color:var(--C1);border-color:var(--C1)">
+      <div class="ls-emoji">🔥</div>
+      <div class="ls-name">C1</div>
+      <div class="ls-range">Advanced</div>
+      <div class="ls-desc">پیشرفته · حرفه‌ای</div>
+    </div>
+    <div class="ls-card" data-level="C2" style="color:var(--C2);border-color:var(--C2)">
+      <div class="ls-emoji">🏆</div>
+      <div class="ls-name">C2</div>
+      <div class="ls-range">Mastery</div>
+      <div class="ls-desc">تسلط کامل</div>
+    </div>
+  </div>
+  <div class="ls-skip" id="ls-skip">همه سطح‌ها با هم ←</div>
+</div>
+
+<!-- ══ APP SHELL ════════════════════════════════════════ -->
+<div id="app-shell">
+  <div id="nav">
+    <div class="nav-logo">
+      <div class="nav-icon">📚</div>
+      <div class="nav-text">FlashCards <b style="color:var(--gold)">IL</b><small>Intermediate Level</small></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <div class="nav-level-badge" id="nav-level-badge" onclick="showLevelScreen()"></div>
+      <div id="nav-stats">
+        <span>📚 <b id="stt">0</b></span>
+        <span>Due <b id="std">0</b></span>
+      </div>
+    </div>
+  </div>
+
+  <div id="tabs">
+    <button class="tab active" data-tab="study"><span class="ti">📖</span>Study</button>
+    <button class="tab" data-tab="stats"><span class="ti">📊</span>Stats</button>
+    <button class="tab" data-tab="words"><span class="ti">🗂</span>Words</button>
+    <button class="tab" data-tab="fetch"><span class="ti">⬇</span>Fetch</button>
+    <button class="tab" data-tab="about"><span class="ti">ℹ</span>About</button>
+    <button class="tab" data-tab="config"><span class="ti">⚙</span>Config</button>
+  </div>
+
+  <div id="screens">
+
+    <!-- ── STUDY ── -->
+    <div id="study-screen" class="screen active">
+      <div id="auto-fetch-bar">
+        <span>⬇ دریافت لغات جدید…</span>
+        <div id="af-prog-bg"><div id="af-prog-fill" style="width:0%"></div></div>
+        <span id="af-pct">0%</span>
+      </div>
+
+      <div id="sess-bar">
+        <div id="sess-prog-bg"><div id="sess-prog-fill" style="width:0%"></div></div>
+        <div id="sess-counts" style="display:flex;gap:10px">
+          <span style="color:var(--green)">✓ <b id="sc-known">0</b></span>
+          <span style="color:var(--text3)">· <b id="sc-due">0</b> left</span>
+        </div>
+      </div>
+
+      <div id="audio-bar">
+        <label>🔊</label>
+        <select id="voice-select"></select>
+        <label>Speed:</label>
+        <select id="speed-select">
+          <option value="0.7">Slow</option>
+          <option value="0.9" selected>Normal</option>
+          <option value="1.1">Fast</option>
+        </select>
+      </div>
+
+      <div id="loading-card" class="hidden">
+        <div style="font-size:11px;color:var(--text3);letter-spacing:1px">Loading word data…</div>
+        <div class="loader"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+      </div>
+
+      <div id="done-card" class="hidden">
+        <div class="done-confetti">🎉</div>
+        <div id="done-title">Session Complete!</div>
+        <div class="done-stats">
+          <div class="done-stat"><div class="done-stat-num" id="ds-done">0</div><div class="done-stat-label">Reviewed</div></div>
+          <div class="done-stat"><div class="done-stat-num" id="ds-known" style="color:var(--green)">0</div><div class="done-stat-label">Mastered</div></div>
+        </div>
+        <div id="done-sub"></div>
+        <button id="continue-btn">Study More →</button>
+      </div>
+
+      <div id="card-wrap" class="hidden">
+        <div id="flashcard">
+          <!-- FRONT -->
+          <div id="card-front">
+            <div class="card-orb orb1"></div>
+            <div class="card-orb orb2"></div>
+            <div class="card-level-ribbon" id="front-ribbon"></div>
+            <div id="word-pos"></div>
+            <div id="word-main"></div>
+            <div id="word-pron-row">
+              <div id="word-pron"></div>
+              <button class="audio-btn" id="af-btn" title="Pronounce">🔊</button>
+            </div>
+            <div id="word-synonyms"></div>
+            <div class="mastery-wrap">
+              <svg class="mastery-ring-svg" width="52" height="52" viewBox="0 0 52 52">
+                <circle class="mastery-ring-bg" cx="26" cy="26" r="22"/>
+                <circle class="mastery-ring-fill" id="mastery-ring" cx="26" cy="26" r="22" stroke-dasharray="138.2" stroke-dashoffset="138.2"/>
+              </svg>
+              <div class="mastery-pct" id="mastery-pct">0%</div>
+            </div>
+            <div id="flip-hint">TAP TO REVEAL ▼</div>
+          </div>
+          <!-- BACK -->
+          <div id="card-back" class="hidden">
+            <div class="card-orb orb1"></div>
+            <div class="card-level-ribbon" id="back-ribbon"></div>
+            <div id="back-word-row">
+              <span id="bw-text"></span>
+              <button class="audio-btn" id="ab-btn" title="Pronounce">🔊</button>
+              <span id="bpron"></span>
+            </div>
+            <div class="section">
+              <div class="sec-label">🇮🇷 معنی فارسی</div>
+              <div id="fa-text" class="fa-text"></div>
+            </div>
+            <div class="section">
+              <div class="sec-label">🇺🇸 English</div>
+              <div id="en-text" class="en-text"></div>
+            </div>
+            <div class="section">
+              <div class="sec-label">💬 Examples</div>
+              <div id="ex1" class="example"></div>
+              <div id="ex2" class="example"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <button id="flip-btn" class="hidden">Show Answer ▼</button>
+      <div id="rate-row" class="hidden">
+        <button class="rate-btn" id="r0"><span class="rb-emoji">😓</span>Forgot</button>
+        <button class="rate-btn" id="r1"><span class="rb-emoji">😐</span>Hard</button>
+        <button class="rate-btn" id="r2"><span class="rb-emoji">😊</span>Good</button>
+        <button class="rate-btn" id="r3"><span class="rb-emoji">🌟</span>Easy</button>
+      </div>
+    </div>
+
+    <!-- ── STATS ── -->
+    <div id="stats-screen" class="screen">
+      <div class="sc">
+        <div class="sc-title">Total Vocabulary</div>
+        <div class="big-num" id="s-total">0</div>
+        <div class="big-label">words · target 10,000</div>
+        <div style="margin-top:12px">
+          <div class="prog-bg"><div class="prog-fill" id="s-prog" style="background:linear-gradient(90deg,#1a5fb4,var(--accent))"></div></div>
+          <div style="font-size:9px;color:var(--accent2);margin-top:5px;text-align:right" id="s-pct"></div>
+        </div>
+      </div>
+      <div class="g2">
+        <div class="sc"><div class="sc-title">Mastered</div><div class="mini-num" id="s-known" style="color:var(--green)">0</div><div class="mini-label">≥70% mastery</div></div>
+        <div class="sc"><div class="sc-title">Learning</div><div class="mini-num" id="s-learning" style="color:var(--orange)">0</div><div class="mini-label">in progress</div></div>
+        <div class="sc"><div class="sc-title">New</div><div class="mini-num" id="s-new" style="color:#60a5fa">0</div><div class="mini-label">not started</div></div>
+        <div class="sc"><div class="sc-title">Due Today</div><div class="mini-num" id="s-due2" style="color:var(--gold)">0</div><div class="mini-label">ready to review</div></div>
+      </div>
+      <div class="sc">
+        <div class="sc-title">By Level</div>
+        <div id="level-rows"></div>
+      </div>
+      <div class="sc">
+        <div class="sc-title">Mastery Distribution</div>
+        <div id="dist-rows"></div>
+      </div>
+    </div>
+
+    <!-- ── WORDS ── -->
+    <div id="words-screen" class="screen">
+      <div class="sc">
+        <div class="sc-title">Word Library — <span id="wl-total">0</span> words</div>
+        <input class="search-box" id="word-search" placeholder="🔍 Search words…" autocomplete="off" spellcheck="false"/>
+        <div class="filter-row" id="filter-row">
+          <button class="filter-chip active" data-filter="all" style="color:var(--text2);border-color:var(--border2)">All</button>
+          <button class="filter-chip" data-filter="A1" style="color:var(--A1);border-color:var(--A1)">A1</button>
+          <button class="filter-chip" data-filter="A2" style="color:var(--A2);border-color:var(--A2)">A2</button>
+          <button class="filter-chip" data-filter="B1" style="color:var(--B1);border-color:var(--B1)">B1</button>
+          <button class="filter-chip" data-filter="B2" style="color:var(--B2);border-color:var(--B2)">B2</button>
+          <button class="filter-chip" data-filter="C1" style="color:var(--C1);border-color:var(--C1)">C1</button>
+          <button class="filter-chip" data-filter="C2" style="color:var(--C2);border-color:var(--C2)">C2</button>
+        </div>
+        <div style="display:flex;gap:8px;font-size:9px;margin-bottom:8px">
+          <span style="color:#60a5fa">● New</span>
+          <span style="color:var(--orange)">● Learning</span>
+          <span style="color:var(--green)">● Mastered</span>
+        </div>
+        <div id="word-list" class="word-list"></div>
+      </div>
+    </div>
+
+    <!-- ── FETCH ── -->
+    <div id="fetch-screen" class="screen">
+      <div class="sc">
+        <div class="sc-title">Word Library — <span id="f-total">0</span> / 10,000</div>
+        <div class="prog-bg" style="margin-bottom:6px"><div class="prog-fill" id="f-prog" style="background:linear-gradient(90deg,#1a5fb4,var(--accent))"></div></div>
+        <div style="font-size:9px;color:var(--accent2);margin-bottom:14px" id="f-pct"></div>
+        <button class="fetch-btn" id="btn-f50">⬇ Fetch 50 New Words</button>
+        <button class="fetch-btn" id="btn-fbulk">🚀 Bulk Fetch ~400 Words</button>
+        <div style="font-size:9px;color:var(--text3);margin-bottom:14px;line-height:2">
+          هر بار Bulk Fetch بزن تا به ۱۰,۰۰۰ لغت برسی.<br>
+          وقتی لغات تموم بشه، اتوماتیک دریافت می‌شه.
+        </div>
+        <button class="fetch-btn danger" id="btn-reset">⚠ Reset All Progress</button>
+        <div id="fetch-log" class="log-box"></div>
+      </div>
+    </div>
+
+    <!-- ── ABOUT ── -->
+    <div id="about-screen" class="screen">
+      <div class="about-hero">
+        <div style="font-size:40px;margin-bottom:10px">📚</div>
+        <div class="about-name">FlashCards IL</div>
+        <div class="about-by">ساخته شده توسط <b>Ali Reza Bayat</b></div>
+        <div class="about-badge-row">
+          <span class="about-badge" style="background:rgba(61,142,240,.15);color:var(--accent2);border:1px solid var(--border2)">CEFR A1–C2</span>
+          <span class="about-badge" style="background:rgba(245,200,66,.1);color:var(--gold);border:1px solid rgba(245,200,66,.3)">SRS Algorithm</span>
+          <span class="about-badge" style="background:rgba(62,207,110,.1);color:var(--green);border:1px solid rgba(62,207,110,.3)">Free · رایگان</span>
+        </div>
+      </div>
+
+      <div class="about-section">
+        <div class="about-section-title">🎯 این برنامه چیه؟</div>
+        <div class="about-item">
+          <div class="about-item-icon">📖</div>
+          <div>یک سیستم هوشمند یادگیری لغات انگلیسی با <b>فلش‌کارت</b> که با الگوریتم تکرار فاصله‌دار (SRS) کار می‌کنه — یعنی هر لغت دقیقاً موقعی که داری فراموش می‌کنی دوباره بهت نشون داده می‌شه.</div>
+        </div>
+        <div class="about-item">
+          <div class="about-item-icon">🇮🇷</div>
+          <div>هر لغت شامل <b>تلفظ آمریکایی</b>، <b>معنی فارسی</b>، تعریف انگلیسی و دو جمله نمونه می‌شه.</div>
+        </div>
+        <div class="about-item">
+          <div class="about-item-icon">🔊</div>
+          <div>با یه کلیک می‌تونی <b>تلفظ صحیح</b> هر لغت رو بشنوی — با صدای طبیعی انگلیسی آمریکایی.</div>
+        </div>
+      </div>
+
+      <div class="about-section">
+        <div class="about-section-title">🏆 ویژگی‌ها</div>
+        <div class="about-item"><div class="about-item-icon">📊</div><div><b>۶ سطح CEFR</b> — از A1 مبتدی تا C2 تسلط کامل. سطح مناسب خودت رو انتخاب کن.</div></div>
+        <div class="about-item"><div class="about-item-icon">🔄</div><div><b>الگوریتم SRS</b> — هر لغت تا ۷۰٪ تسلط تکرار می‌شه. هیچ لغتی فراموش نمی‌شه!</div></div>
+        <div class="about-item"><div class="about-item-icon">📡</div><div><b>لغات نامحدود</b> — وقتی لغات تموم بشه، اتوماتیک لغات جدید دریافت می‌شه.</div></div>
+        <div class="about-item"><div class="about-item-icon">💾</div><div><b>ذخیره محلی</b> — همه پیشرفت‌ها روی دستگاهت ذخیره می‌شه. نیاز به اکانت نداری.</div></div>
+        <div class="about-item"><div class="about-item-icon">📴</div><div><b>آفلاین</b> — بعد از نصب، بدون اینترنت هم کار می‌کنه.</div></div>
+      </div>
+
+      <div class="about-section">
+        <div class="about-section-title">📲 اشتراک‌گذاری</div>
+        <div class="about-item"><div class="about-item-icon">🔗</div><div>این لینک رو برای دوستات بفرست تا اونا هم استفاده کنن:</div></div>
+        <button class="share-btn" id="share-btn">🔗 کپی لینک برنامه</button>
+        <button class="share-btn" id="install-btn" style="border-color:var(--accent2);color:var(--accent2);background:rgba(61,142,240,.08)">📲 نصب روی موبایل</button>
+      </div>
+
+      <div class="about-section">
+        <div class="about-section-title">🛠 نحوه استفاده</div>
+        <div class="about-item"><div class="about-item-icon">1️⃣</div><div>لغت رو ببین — سعی کن معنیش رو یادت بیاری</div></div>
+        <div class="about-item"><div class="about-item-icon">2️⃣</div><div>روی کارت بزن تا معنی نشون داده بشه</div></div>
+        <div class="about-item"><div class="about-item-icon">3️⃣</div><div>صادقانه ارزیابی کن: Forgot / Hard / Good / Easy</div></div>
+        <div class="about-item"><div class="about-item-icon">4️⃣</div><div>سوایپ راست = Easy · سوایپ چپ = Forgot</div></div>
+      </div>
+    </div>
+
+    <!-- ── CONFIG ── -->
+    <div id="config-screen" class="screen">
+      <div class="sc">
+        <div class="sc-title">Study Settings</div>
+        <div class="cfg-row">
+          <div><div class="cfg-label">Daily New Words</div><div class="cfg-desc">لغات جدید در هر جلسه</div></div>
+          <div style="display:flex;align-items:center;gap:6px">
+            <button class="num-btn" id="d-minus">−</button>
+            <div class="num-val" id="d-val">20</div>
+            <button class="num-btn" id="d-plus">+</button>
+          </div>
+        </div>
+        <div class="cfg-row">
+          <div><div class="cfg-label">Active Level</div><div class="cfg-desc">سطح لغات فعال</div></div>
+          <button class="num-btn" style="width:auto;padding:0 12px;font-size:10px" id="change-level-btn">Change</button>
+        </div>
+        <div class="cfg-row">
+          <div><div class="cfg-label">Auto-pronounce</div><div class="cfg-desc">تلفظ خودکار</div></div>
+          <select class="ss" id="ap-sel">
+            <option value="off">Off</option>
+            <option value="front">Front only</option>
+            <option value="both">Both sides</option>
+          </select>
+        </div>
+        <div class="cfg-row">
+          <div><div class="cfg-label">Card Order</div><div class="cfg-desc">ترتیب کارت‌ها</div></div>
+          <select class="ss" id="ord-sel">
+            <option value="due">By due date</option>
+            <option value="random">Random</option>
+            <option value="mastery">Lowest mastery</option>
+          </select>
+        </div>
+      </div>
+      <div class="sc">
+        <div class="sc-title">🔑 API Key</div>
+        <div style="font-size:9px;color:var(--text3);margin-bottom:8px;line-height:1.9">کلید فعلی روی دستگاه ذخیره‌ست. برای تغییر وارد کن:</div>
+        <input class="key-input" id="cfg-key" type="password" placeholder="sk-ant-api03-..." autocomplete="off" spellcheck="false"/>
+        <button class="fetch-btn" id="cfg-save-key" style="margin-bottom:0">✓ Update Key</button>
+      </div>
+      <div class="sc">
+        <div class="sc-title">ℹ About</div>
+        <div style="font-size:10px;color:var(--text3);line-height:2.2">
+          FlashCards Intermediate Level v3.0<br>
+          ساخته شده توسط <b style="color:var(--text2)">Ali Reza Bayat</b><br>
+          CEFR A1–C2 · SRS Algorithm (SM-2)<br>
+          TTS: Web Speech API
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /screens -->
+</div><!-- /app-shell -->
+
+<div id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════════════════
+//  SEED WORDS (1070 words across 6 CEFR levels)
+// ══════════════════════════════════════════════════════
+const SEED_WORDS = {
+  "A1": ["apple","baby","bag","ball","bank","bed","big","book","boy","bus","buy","call","car","cat","city","come","cook","day","dog","door","eat","egg","family","fast","find","fish","food","free","friend","get","girl","give","go","good","hand","happy","hard","have","hello","help","home","house","hot","how","idea","job","keep","key","know","large","learn","leave","like","live","long","look","love","make","man","many","map","meet","milk","money","month","more","mother","music","name","need","new","nice","night","number","office","old","open","park","pay","people","play","read","red","road","room","run","school","see","shop","sit","sleep","small","speak","study","table","take","talk","teacher","tell","think","time","today","town","train","tree","true","try","turn","use","walk","want","water","way","week","white","woman","work","world","write","year","yes","young","zero","above","after","again","also","always","and","because","before","between","both","but","can","does","down","during","each","else","even","ever","every","few","for","from","her","here","him","his","if","its","just","last","later","less","let","may","most","much","must","never","next","not","now","often","only","other","our","out","over","own","same","since","some","still","such","than","that","the","their","them","then","there","these","they","this","those","through","too","two","under","until","upon","very","was","well","were","what","when","where","which","while","who","will","with","would","you","your"],
+  "A2": ["abroad","absent","accept","accident","address","adult","adventure","afraid","age","agree","airport","alarm","already","amazing","angry","animal","answer","apartment","area","argue","arrive","article","ask","attention","attitude","audience","available","avoid","awful","basic","bathroom","beach","become","begin","believe","belong","better","borrow","bottle","bottom","bridge","bring","broken","build","business","busy","calculate","camera","cancel","capital","carefully","carry","catch","cause","change","charge","cheap","check","choose","church","classmate","clean","clear","clever","climb","close","clothes","collect","colorful","company","compare","complete","computer","connect","contact","continue","copy","corner","correct","cost","country","couple","course","create","cross","culture","damage","dance","decide","deliver","describe","design","detail","difference","difficult","direction","discover","distance","draw","dream","drink","drive","drop","during","earlier","early","easy","either","email","empty","enjoy","enter","environment","especially","evening","exact","example","exercise","expect","experience","explain","fail","fall","famous","favorite","feel","finally","finish","follow","forest","forget","fresh","future","garden","general","glass","group","grow","guess","happen","health","heart","history","hobby","holiday","hospital","hotel","hour","human","hungry","important","include","increase","information","interested","internet","introduce","join","journey","language","later","laugh","law","lazy","lesson","letter","library","listen","local"],
+  "B1": ["abandon","absorb","abstract","abundant","accomplish","accumulate","accurate","acknowledge","acquire","adapt","adequate","adjacent","admire","adopt","advocate","affect","affirm","aggressive","allocate","ambiguous","anticipate","anxious","apparent","appreciate","approach","appropriate","articulate","assert","assess","assume","assure","attain","attribute","authentic","awareness","beneficial","bias","capable","clarify","coherent","collaborate","communicate","compensate","complex","comprehensive","concentrate","confident","confirm","conflict","conscious","consequence","considerable","consistent","construct","contribute","controversial","convince","correlate","critical","crucial","cultivate","curious","decline","dedicate","define","deliberate","demonstrate","derive","describe","develop","diverse","dominant","dramatic","efficient","elaborate","eliminate","emphasize","enable","encounter","enhance","establish","evaluate","evident","evolve","examine","expand","explicit","explore","expose","express","extensive","facilitate","flexible","focus","fundamental","generate","gradual","highlight","identify","illustrate","implement","indicate","inevitable","influence","integrate","intense","interpret","investigate","justify","maintain","mature","maximize","minimize","moderate","modify","motivate","negotiate","objective","obtain","obvious","organize","participate","perceive","persist","perspective","pragmatic","predict","prioritize","productive","profound","promote","propose","rational","recognize","reinforce","relevant","resolve","respond","reveal","significant","simulate","strategy","substantial","sufficient","summarize","support","sustain","tendency","thorough","transition","unique","versatile","voluntary","achieve","analyze","benefit","challenge","consider","context","contrast","debate","distinction","evidence","factor","feature","imply","involve","issue","method","occur","principle","process","refer","relate","require","role","section","source","specific","structure","suggest","theory","vary","aspect","category","concept","consist","distribute","function","major","policy","prove","publish","range","region","research","restrict","similar"],
+  "B2": ["abolish","abstain","adamant","adept","adhere","adjacent","admonish","adversary","aesthetic","affirmation","aggravate","alleviate","allocate","altruistic","ambivalent","ameliorate","amplify","analogy","anarchy","antagonize","apathy","apprehend","archaic","ardent","articulate","aspire","assimilate","atrocious","audacious","augment","avert","baffle","benevolent","blunt","bolster","brevity","candid","catalyst","chronic","circumvent","clandestine","coerce","cognizant","compel","concise","condone","confront","connotation","consolidate","contemplate","contentious","contradict","convey","correlate","covert","credible","cynical","debilitate","deceive","decisive","depict","derogatory","deteriorate","devastating","deviate","dilemma","diminish","discern","dispute","disrupt","distinction","diverge","eloquent","embody","empower","endure","enforce","enlighten","entail","enumerate","eradicate","ethical","euphemism","evoke","exemplify","exhaust","explicit","exploit","expose","exquisite","fabricate","feasible","fervent","fluctuate","formidable","forthright","foster","fragile","frustrate","genuine","grapple","hypothetical","ideological","impartial","impede","implicit","impose","incentive","incline","indifferent","indulge","inherent","initiate","innovation","insightful","integral","intricate","intuitive","invoke","irrational","isolate","justify","lenient","logical","lucid","manipulate","marginalize","mediate","methodical","meticulous","mitigate","mundane","mutual","narrative","negate","neutral","nuance","obscure","obstacle","omit","oppressive","optimistic","paramount","passive","perceive","pessimistic","plausible","polarize","portray","precedent","prejudice","prevalent","prohibit","propel","prudent","radical","rebuke","reconcile","rectify","refute","regulate","reinforce","repercussion","resilient","rhetoric","rigorous","scrutinize","skeptical","speculate","stimulate","subsequent","suppress","sustain","synthesize","tenacious","tolerate","toxic","transparent","trivial","undermine","unify"],
+  "C1": ["aberration","abscond","acrimony","acumen","adulation","affable","aggrandize","ambivalence","ameliorate","anachronism","animosity","anthropomorphic","antiquated","apocryphal","appease","arcane","arduous","assiduous","astute","atone","attenuate","audacity","auspicious","avarice","belligerent","benefactor","benign","beseech","blatant","brevity","brusque","callous","candor","capitulate","capricious","castigate","caustic","circumspect","clamor","cogent","compunction","condescend","confound","convoluted","corroborate","credulity","culpable","dauntless","debacle","deference","deferential","demagogue","denounce","depravity","deride","despondent","didactic","diffidence","dilettante","disconcert","disdain","disparage","dissemble","ebullient","egregious","elusive","embellish","embroil","emphatic","endemic","enigmatic","equivocate","esoteric","estrange","exacerbate","excoriate","exonerate","expedient","extraneous","exuberant","fallacious","fastidious","fervent","flagrant","flippant","foreboding","frugal","furtive","galvanize","gregarious","hapless","harangue","harbinger","hegemony","heretical","hubris","hypocritical","iconoclast","idiosyncratic","ignominious","immutable","impetuous","implacable","impudent","inane","incorrigible","indignation","ineffable","inept","inexorable","infallible","ingenuous","insolent","instigate","intractable","invective","irascible","laconic","lampoon","languish","loquacious","lucrative","magnanimous","malevolent","mendacious","meticulous","misanthrope","mitigate","mollify","morose","munificent","nefarious","nihilistic","obdurate","obsequious","obstinate","obtuse","ominous","omniscient","opprobrium","ostracize","overwrought","panacea","paradox","parochial","pedantic","perfidious","petulant","placate","platitude","plausible","polemical"],
+  "C2": ["abeyance","abjure","abnegate","abstruse","acerbic","acrimony","actuate","adumbrate","adventitious","aegis","afflatus","aggrandizement","alacrity","alimentary","alluvial","amalgamate","amelioration","amorphous","anachronistic","anathema","ancillary","anodyne","anomalous","antithetical","aphorism","apocryphal","apostate","apposite","appurtenance","arcane","archipelago","asperity","asseverate","atavistic","attenuate","auspices","autodidact","avarice","bailiwick","balderdash","banality","bellicose","benighted","blandishment","bloviate","borborygmus","bowdlerize","byzantine","cacophony","callipygian","canard","captious","catharsis","causistry","cavil","chimerical","circumlocution","clandestine","cognoscenti","compunction","conflate","consanguineous","contumacious","convivial","cosset","crepuscular","cupidity","daedal","defenestrate","deleterious","denouement","desuetude","dialectical","diaphanous","diffidence","dilatory","discursive","disquisition","dissipation","dogmatic","ebullience","effete","effluvium","egregious","emolument","empirical","endemic","enervate","ephemeral","epistemic","equanimity","equivocal","ersatz","ethereal","etiolate","euphonious","evanesce","excoriate","execrable","exegesis","exigent","expatiate","expiate","expunge","extirpate","factious","fatuous","fecund","feint","felicitous","ferment","fervid","filibuster","fissile","flummox","foment","fractious","fugacious","fulminate","garrulous","gauche","germane","grandiloquent","gratuitous","gullible","harangue","hedonism","hegemony","heterodox","histrionic","hubris","hyperbole","iconoclast","idiosyncrasy","ignominious","impecunious","imperious","implacable","impugn","inchoate","incorrigible"],
+};
+// ══════════════════════════════════════════════════════
+//  CONSTANTS & STORAGE
+// ══════════════════════════════════════════════════════
+const DB_KEY = "fcil_v3";
+const AK_KEY = "fcil_apikey";
+const LEVELS = ["A1","A2","B1","B2","C1","C2"];
+const LEVEL_COLORS = {A1:"#3ecf6e",A2:"#3ecfcf",B1:"#3d8ef0",B2:"#9b6dff",C1:"#f0923a",C2:"#e85c5c"};
+const LEVEL_EMOJIS = {A1:"🌱",A2:"🌿",B1:"🌳",B2:"🦅",C1:"🔥",C2:"🏆"};
+const MASTERY_THRESHOLD = 70;
+const AUTO_FETCH_THRESHOLD = 20; // fetch more when queue drops below this
+
+function loadDB(){try{return JSON.parse(localStorage.getItem(DB_KEY));}catch{return null;}}
+function saveDB(db){try{localStorage.setItem(DB_KEY,JSON.stringify(db));}catch{toast("Storage full!");}}
+function getKey(){return localStorage.getItem(AK_KEY)||"";}
+function saveKey(k){localStorage.setItem(AK_KEY,k);}
+
+function initDB(){
+  const ex=loadDB(); if(ex) return ex;
+  const cards={};
+  LEVELS.forEach(lv=>{
+    (SEED_WORDS[lv]||[]).forEach(w=>{
+      cards[w]={word:w,level:lv,added:Date.now(),repetitions:0,masteryScore:0};
+    });
+  });
+  const db={cards,cache:{},settings:{dailyNew:20,autoPron:"off",order:"due",activeLevel:"B1"},firstRun:true};
+  saveDB(db); return db;
+}
+
+let DB=initDB();
+
+// ══════════════════════════════════════════════════════
+//  SRS SM-2
+// ══════════════════════════════════════════════════════
+function calcNext(card,q){
+  let{interval=1,easeFactor=2.5,repetitions=0,masteryScore=0}=card;
+  if(q>=2){
+    interval=repetitions===0?1:repetitions===1?3:Math.round(interval*easeFactor);
+    repetitions++;
+    easeFactor=Math.max(1.3,easeFactor+0.1-(3-q)*(0.08+(3-q)*0.02));
+    masteryScore=Math.min(100,masteryScore+(q===3?15:q===2?8:3));
+  }else{repetitions=0;interval=1;masteryScore=Math.max(0,masteryScore-10);}
+  return{interval,easeFactor,repetitions,masteryScore,nextReview:Date.now()+interval*86400000};
+}
+function isDue(c){return !c.nextReview||Date.now()>=c.nextReview;}
+function isActiveLevel(c){
+  const al=DB.settings.activeLevel;
+  if(al==="ALL") return true;
+  const idx=LEVELS.indexOf(al);
+  return LEVELS.indexOf(c.level)<=idx;
+}
+
+// ══════════════════════════════════════════════════════
+//  TTS
+// ══════════════════════════════════════════════════════
+let voices=[],voiceSel,speedSel;
+function loadVoices(){
+  let all=speechSynthesis.getVoices();
+  voices=all.filter(v=>v.lang.startsWith("en"));
+  if(!voices.length) voices=all.slice(0,6);
+  voiceSel.innerHTML="";
+  voices.forEach((v,i)=>{
+    const o=document.createElement("option");
+    o.value=i;
+    const n=v.name.replace("Google ","").replace("Microsoft ","").replace(" English","");
+    o.textContent=n+(v.lang.includes("US")?" 🇺🇸":v.lang.includes("GB")?" 🇬🇧":"");
+    if(v.lang.includes("US")) o.selected=true;
+    voiceSel.appendChild(o);
+  });
+}
+function speak(text,btn){
+  if(!("speechSynthesis" in window)){toast("TTS not supported");return;}
+  speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(text);
+  const vi=parseInt(voiceSel?.value||"0");
+  if(voices[vi]) u.voice=voices[vi];
+  u.rate=parseFloat(speedSel?.value||"0.9");
+  if(btn){btn.classList.add("playing");u.onend=u.onerror=()=>btn.classList.remove("playing");}
+  speechSynthesis.speak(u);
+}
+
+// ══════════════════════════════════════════════════════
+//  API
+// ══════════════════════════════════════════════════════
+async function apiCall(prompt,maxTokens=700){
+  const key=getKey();
+  if(!key){showOverlay("apikey-screen");throw new Error("nokey");}
+  const res=await fetch("https://api.anthropic.com/v1/messages",{
+    method:"POST",
+    headers:{"Content-Type":"application/json","x-api-key":key,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
+    body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:maxTokens,messages:[{role:"user",content:prompt}]})
+  });
+  if(res.status===401){toast("❌ API Key نادرست");showOverlay("apikey-screen");throw new Error("badkey");}
+  const d=await res.json();
+  return(d.content||[]).map(c=>c.text||"").join("").replace(/```json|```/g,"").trim();
+}
+
+async function fetchWordData(word){
+  const level=DB.cards[word]?.level||"B1";
+  const txt=await apiCall(
+    `For the English word "${word}" (CEFR level ${level}), return ONLY this JSON object:
+{"word":"${word}","pronunciation":"/IPA American/","fa":"معنی فارسی کوتاه و دقیق","en":"Concise English definition (1 sentence).","pos":"noun/verb/adj/adv","synonyms":["syn1","syn2"],"example1":"Natural example sentence using ${word}.","example2":"Another natural example sentence."}
+ONLY the JSON, no markdown.`
+  );
+  return JSON.parse(txt);
+}
+
+async function fetchWordBatch(existing,count=50,level="B1"){
+  const txt=await apiCall(
+    `Generate ${count} unique English vocabulary words at CEFR level ${level}. Avoid these words: ${existing.slice(0,60).join(",")}.
+Return ONLY a JSON array of ${count} lowercase English words. No explanation.`,
+    900
+  );
+  const arr=JSON.parse(txt);
+  return arr.filter(w=>typeof w==="string"&&w.length>1);
+}
+
+// ══════════════════════════════════════════════════════
+//  OVERLAYS
+// ══════════════════════════════════════════════════════
+function showOverlay(id){
+  document.querySelectorAll(".overlay").forEach(o=>o.classList.add("hidden"));
+  document.getElementById(id).classList.remove("hidden");
+}
+function hideAllOverlays(){
+  document.querySelectorAll(".overlay").forEach(o=>o.classList.add("hidden"));
+}
+
+function showLevelScreen(){showOverlay("level-screen");}
+
+// Stars animation
+function makeStars(){
+  const c=document.getElementById("stars");
+  for(let i=0;i<60;i++){
+    const s=document.createElement("div");
+    s.className="star";
+    const sz=Math.random()*2+1;
+    s.style.cssText=`width:${sz}px;height:${sz}px;left:${Math.random()*100}%;top:${Math.random()*100}%;--d:${2+Math.random()*4}s;--delay:${Math.random()*4}s`;
+    c.appendChild(s);
+  }
+}
+
+// ══════════════════════════════════════════════════════
+//  STUDY STATE
+// ══════════════════════════════════════════════════════
+let queue=[],sessionDone=0,sessionKnown=0,curData=null,flipped=false,autoFetching=false;
+
+function buildQueue(){
+  const s=DB.settings;
+  let due=Object.values(DB.cards).filter(c=>isDue(c)&&isActiveLevel(c));
+  if(s.order==="random") due.sort(()=>Math.random()-.5);
+  else if(s.order==="mastery") due.sort((a,b)=>(a.masteryScore||0)-(b.masteryScore||0));
+  else due.sort((a,b)=>(a.nextReview||0)-(b.nextReview||0));
+  queue=due.map(c=>c.word);
+  updateNavStats();
+  // Auto-fetch if running low
+  if(queue.length<AUTO_FETCH_THRESHOLD&&!autoFetching) triggerAutoFetch();
+  return queue;
+}
+
+function updateNavStats(){
+  const cards=Object.values(DB.cards).filter(isActiveLevel);
+  $("stt").textContent=cards.length.toLocaleString();
+  $("std").textContent=queue.length;
+  // Level badge
+  const al=DB.settings.activeLevel;
+  const nb=$("nav-level-badge");
+  if(al==="ALL"){nb.textContent="ALL";nb.style.color="#fff";nb.style.borderColor="var(--border2)";}
+  else{nb.textContent=LEVEL_EMOJIS[al]+" "+al;nb.style.color=LEVEL_COLORS[al];nb.style.borderColor=LEVEL_COLORS[al];}
+}
+
+async function triggerAutoFetch(){
+  if(autoFetching||!getKey()) return;
+  autoFetching=true;
+  const bar=$("auto-fetch-bar"); bar.classList.add("show");
+  const al=DB.settings.activeLevel;
+  const targetLevel=al==="ALL"?"B1":al;
+  try{
+    $("af-prog-fill").style.width="30%"; $("af-pct").textContent="30%";
+    const existing=Object.keys(DB.cards);
+    const words=await fetchWordBatch(existing,50,targetLevel);
+    let added=0;
+    words.forEach(w=>{
+      if(!DB.cards[w]){DB.cards[w]={word:w,level:targetLevel,added:Date.now(),repetitions:0,masteryScore:0};added++;}
+    });
+    saveDB(DB);
+    $("af-prog-fill").style.width="100%"; $("af-pct").textContent="✓";
+    toast(`✓ ${added} لغت جدید اضافه شد`);
+    buildQueue(); showStudy();
+  }catch(e){if(e.message!=="nokey"&&e.message!=="badkey") console.warn("Auto-fetch failed:",e);}
+  setTimeout(()=>{bar.classList.remove("show");},1500);
+  autoFetching=false;
+}
+
+// ══════════════════════════════════════════════════════
+//  RENDER STUDY
+// ══════════════════════════════════════════════════════
+function showStudy(){
+  $("loading-card").classList.add("hidden");
+  $("done-card").classList.add("hidden");
+  $("card-wrap").classList.add("hidden");
+  $("flip-btn").classList.add("hidden");
+  $("rate-row").classList.add("hidden");
+
+  $("sess-prog-fill").style.width=sessionDone+queue.length>0?`${(sessionDone/(sessionDone+queue.length))*100}%`:"0%";
+  $("sc-known").textContent=sessionKnown;
+  $("sc-due").textContent=queue.length;
+
+  if(queue.length===0){
+    $("done-card").classList.remove("hidden");
+    $("ds-done").textContent=sessionDone;
+    $("ds-known").textContent=sessionKnown;
+    $("done-sub").textContent=sessionDone>0?"آفرین! بعداً برگرد و ادامه بده 🌟":"لغتی برای مرور نداری. فردا برگرد!";
+    return;
+  }
+
+  const word=queue[0];
+  const card=DB.cards[word]||{masteryScore:0,level:"B1"};
+  const cached=DB.cache[word];
+  if(cached){curData=cached;renderFront(cached,card);return;}
+
+  $("loading-card").classList.remove("hidden");
+  fetchWordData(word).then(d=>{
+    DB.cache[word]=d;saveDB(DB);curData=d;renderFront(d,card);
+  }).catch(e=>{
+    if(e.message==="nokey"||e.message==="badkey") return;
+    curData={word,pronunciation:"—",fa:"خطا — اتصال چک کن",en:"Could not load.",pos:"?",synonyms:[],example1:"—",example2:"—"};
+    renderFront(curData,card);
+  });
+}
+
+function levelRibbon(level){
+  const color=LEVEL_COLORS[level]||"var(--accent)";
+  return{color,text:level};
+}
+
+function renderFront(d,card){
+  $("loading-card").classList.add("hidden");
+  flipped=false;
+  $("word-pos").textContent=d.pos||"";
+  $("word-main").textContent=d.word;
+  $("word-pron").textContent=d.pronunciation||"";
+  $("word-synonyms").textContent=d.synonyms?.length?"≈ "+d.synonyms.slice(0,3).join(" · "):"";
+
+  // Level ribbon
+  const lv=card.level||"B1";
+  const lc=LEVEL_COLORS[lv];
+  [$("front-ribbon"),$("back-ribbon")].forEach(r=>{
+    r.textContent=lv; r.style.color=lc; r.style.borderColor=lc;
+    r.style.background=lc+"18";
+  });
+
+  // Mastery ring
+  const ms=card.masteryScore||0;
+  const circ=138.2, offset=circ-(circ*ms/100);
+  const ring=$("mastery-ring");
+  ring.style.strokeDashoffset=offset;
+  ring.style.stroke=`hsl(${ms*1.2},60%,55%)`;
+  $("mastery-pct").textContent=ms+"%";
+
+  $("card-front").classList.remove("hidden");
+  $("card-back").classList.add("hidden");
+  $("card-wrap").classList.remove("hidden");
+  $("flip-btn").classList.remove("hidden");
+  $("rate-row").classList.add("hidden");
+
+  if(DB.settings.autoPron==="front"||DB.settings.autoPron==="both")
+    setTimeout(()=>speak(d.word,$("af-btn")),350);
+}
+
+function flipCard(){
+  if(!curData||flipped) return;
+  flipped=true;
+  const d=curData;
+  $("bw-text").textContent=d.word;
+  $("bpron").textContent=d.pronunciation||"";
+  $("fa-text").textContent=d.fa||"";
+  $("en-text").textContent=d.en||"";
+  $("ex1").innerHTML=`<span class="ex-num">1.</span>${d.example1||""}`;
+  $("ex2").innerHTML=`<span class="ex-num">2.</span>${d.example2||""}`;
+  $("card-front").classList.add("hidden");
+  $("card-back").classList.remove("hidden");
+  $("flip-btn").classList.add("hidden");
+  $("rate-row").classList.remove("hidden");
+  if(DB.settings.autoPron==="both") setTimeout(()=>speak(d.word,$("ab-btn")),200);
+}
+
+function rateCard(q){
+  if(!queue.length) return;
+  const word=queue[0];
+  const card=DB.cards[word]||{word,level:"B1",repetitions:0,masteryScore:0};
+  DB.cards[word]={...card,...calcNext(card,q)};
+  saveDB(DB);
+  if(q>=2) sessionKnown++;
+  sessionDone++;
+  $("flashcard").classList.add(q>=2?"slide-right":"slide-left");
+  setTimeout(()=>{
+    $("flashcard").classList.remove("slide-right","slide-left");
+    queue.shift(); flipped=false; showStudy();
+  },300);
+}
+
+// ══════════════════════════════════════════════════════
+//  STATS
+// ══════════════════════════════════════════════════════
+function renderStats(){
+  const all=Object.values(DB.cards);
+  const active=all.filter(isActiveLevel);
+  const total=active.length;
+  const known=active.filter(c=>c.masteryScore>=MASTERY_THRESHOLD).length;
+  const learning=active.filter(c=>c.repetitions>0&&c.masteryScore<MASTERY_THRESHOLD).length;
+  const newC=active.filter(c=>!c.repetitions||c.repetitions===0).length;
+  $("s-total").textContent=total.toLocaleString();
+  $("s-known").textContent=known;
+  $("s-learning").textContent=learning;
+  $("s-new").textContent=newC;
+  $("s-due2").textContent=active.filter(isDue).length;
+  $("s-prog").style.width=`${Math.min(100,(total/10000)*100)}%`;
+  $("s-pct").textContent=`${((total/10000)*100).toFixed(1)}% of 10,000`;
+
+  // By level
+  $("level-rows").innerHTML=LEVELS.map(lv=>{
+    const lc=all.filter(c=>c.level===lv);
+    const n=lc.length, k=lc.filter(c=>c.masteryScore>=MASTERY_THRESHOLD).length;
+    const pct=n>0?Math.round((k/n)*100):0;
+    const color=LEVEL_COLORS[lv];
+    return `<div class="lv-row">
+      <div class="lv-badge" style="color:${color};border-color:${color};background:${color}18">${lv}</div>
+      <div class="lv-bar-bg"><div class="lv-bar-fill" style="width:${pct}%;background:${color}"></div></div>
+      <div class="lv-cnt">${n} <span style="color:${color};font-size:8px">${k}✓</span></div>
+    </div>`;
+  }).join("");
+
+  // Distribution
+  const dists=[["0–25","var(--red)",0,25],["25–50","var(--orange)",25,50],["50–75","var(--green)",50,75],["75–100","#60a5fa",75,101]];
+  $("dist-rows").innerHTML=dists.map(([r,c,lo,hi])=>{
+    const n=active.filter(x=>{const s=x.masteryScore||0;return s>=lo&&s<hi;}).length;
+    return `<div class="dist-row"><div class="dist-lbl" style="color:${c}">${r}%</div><div class="prog-bg" style="flex:1;"><div class="prog-fill" style="width:${total>0?(n/total)*100:0}%;background:${c}"></div></div><div class="dist-cnt" style="color:${c}">${n}</div></div>`;
+  }).join("");
+}
+
+// ══════════════════════════════════════════════════════
+//  WORDS
+// ══════════════════════════════════════════════════════
+let wordFilter="all", wordSearch="";
+function renderWords(){
+  const all=Object.values(DB.cards);
+  let cards=all;
+  if(wordFilter!=="all") cards=cards.filter(c=>c.level===wordFilter);
+  if(wordSearch) cards=cards.filter(c=>c.word.includes(wordSearch.toLowerCase()));
+  cards.sort((a,b)=>(b.masteryScore||0)-(a.masteryScore||0));
+  $("wl-total").textContent=cards.length;
+  const shown=cards.slice(0,300);
+  $("word-list").innerHTML=shown.map(c=>{
+    const cls=c.masteryScore>=MASTERY_THRESHOLD?"chip-known":c.repetitions>0?"chip-learning":"chip-new";
+    const color=LEVEL_COLORS[c.level]||"";
+    return `<button class="word-chip ${cls}" data-word="${c.word}" style="border-color:${color}33">${c.word}</button>`;
+  }).join("")+(cards.length>300?`<span style="font-size:9px;color:var(--text3);padding:4px">+${cards.length-300} more…</span>`:"");
+}
+
+// ══════════════════════════════════════════════════════
+//  FETCH
+// ══════════════════════════════════════════════════════
+let fetching=false;
+function addLog(msg,type="info"){
+  const b=$("fetch-log");b.style.display="block";
+  const s=document.createElement("span");s.className="log-"+type;s.style.display="block";s.textContent=msg;
+  b.appendChild(s);b.scrollTop=b.scrollHeight;
+}
+function updateFetchUI(){
+  const t=Object.keys(DB.cards).length;
+  $("f-total").textContent=t.toLocaleString();
+  $("f-prog").style.width=`${Math.min(100,(t/10000)*100)}%`;
+  $("f-pct").textContent=`${((t/10000)*100).toFixed(1)}% — ${(10000-t).toLocaleString()} to go`;
+}
+
+async function doFetch(count){
+  if(fetching) return;
+  fetching=true;$("btn-f50").disabled=$("btn-fbulk").disabled=true;
+  $("fetch-log").innerHTML="";
+  const al=DB.settings.activeLevel; const lv=al==="ALL"?"B1":al;
+  try{
+    addLog(`📡 Fetching ${count} new ${lv} words…`,"info");
+    const w=await fetchWordBatch(Object.keys(DB.cards),count,lv);
+    let added=0;
+    w.forEach(x=>{if(!DB.cards[x]){DB.cards[x]={word:x,level:lv,added:Date.now(),repetitions:0,masteryScore:0};added++;}});
+    saveDB(DB);addLog(`✓ Added ${added} words`,"ok");
+    addLog(`📚 Total: ${Object.keys(DB.cards).length.toLocaleString()}`,"info");
+    updateFetchUI();updateNavStats();buildQueue();
+  }catch(e){if(e.message!=="nokey"&&e.message!=="badkey") addLog("✗ "+e.message,"err");}
+  fetching=false;$("btn-f50").disabled=$("btn-fbulk").disabled=false;
+}
+
+async function doBulkFetch(){
+  if(fetching) return;
+  fetching=true;$("btn-f50").disabled=$("btn-fbulk").disabled=true;
+  $("fetch-log").innerHTML="";
+  addLog("🚀 Bulk fetch — 8 batches × 50 words…","info");
+  const al=DB.settings.activeLevel; const lv=al==="ALL"?"B1":al;
+  for(let i=0;i<8;i++){
+    try{
+      addLog(`📡 Batch ${i+1}/8 — level ${lv}…`,"info");
+      const w=await fetchWordBatch(Object.keys(DB.cards),50,lv);
+      let added=0;
+      w.forEach(x=>{if(!DB.cards[x]){DB.cards[x]={word:x,level:lv,added:Date.now(),repetitions:0,masteryScore:0};added++;}});
+      saveDB(DB);addLog(`✓ Batch ${i+1}: +${added} → total ${Object.keys(DB.cards).length}`,"ok");
+      updateFetchUI();await new Promise(r=>setTimeout(r,700));
+    }catch(e){addLog(`✗ Batch ${i+1}: ${e.message}`,"err");if(e.message==="nokey"||e.message==="badkey") break;}
+  }
+  addLog("🎉 Done!","ok");updateNavStats();buildQueue();
+  fetching=false;$("btn-f50").disabled=$("btn-fbulk").disabled=false;
+}
+
+// ══════════════════════════════════════════════════════
+//  TABS
+// ══════════════════════════════════════════════════════
+function switchTab(name){
+  document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("active",t.dataset.tab===name));
+  document.querySelectorAll(".screen").forEach(s=>{
+    const on=s.id===name+"-screen";
+    s.classList.toggle("active",on);
+    s.style.display=on?(name==="study"?"flex":"block"):"none";
+  });
+  if(name==="study"){buildQueue();showStudy();}
+  if(name==="stats") renderStats();
+  if(name==="words") renderWords();
+  if(name==="fetch") updateFetchUI();
+  if(name==="config") renderConfig();
+}
+
+function renderConfig(){
+  $("d-val").textContent=DB.settings.dailyNew;
+  $("ap-sel").value=DB.settings.autoPron||"off";
+  $("ord-sel").value=DB.settings.order||"due";
+  const k=getKey();
+  $("cfg-key").value=k?k.slice(0,14)+"…":"";
+}
+function saveSetting(key,val){DB.settings[key]=val;saveDB(DB);}
+
+// ══════════════════════════════════════════════════════
+//  TOAST & HELPERS
+// ══════════════════════════════════════════════════════
+function toast(msg,dur=2400){
+  const el=$("toast");el.textContent=msg;el.classList.add("show");
+  setTimeout(()=>el.classList.remove("show"),dur);
+}
+function $(id){return document.getElementById(id);}
+
+// ══════════════════════════════════════════════════════
+//  INSTALL
+// ══════════════════════════════════════════════════════
+let deferredInstall=null;
+window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferredInstall=e;});
+function triggerInstall(){
+  if(deferredInstall){deferredInstall.prompt();deferredInstall.userChoice.then(()=>{deferredInstall=null;});}
+  else toast("Safari: Share → Add to Home Screen\nChrome: منو → Add to Home Screen");
+}
+
+// ══════════════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════════════
+document.addEventListener("DOMContentLoaded",()=>{
+  voiceSel=$("voice-select"); speedSel=$("speed-select");
+  if(speechSynthesis.onvoiceschanged!==undefined) speechSynthesis.onvoiceschanged=loadVoices;
+  setTimeout(loadVoices,400);
+
+  makeStars();
+
+  // Init screen display
+  document.querySelectorAll(".screen").forEach(s=>{
+    s.style.display=s.id==="study-screen"?"flex":"none";
+  });
+
+  // ── Welcome flow ──
+  $("wc-start-btn").addEventListener("click",()=>{
+    if(!getKey()){showOverlay("apikey-screen");}
+    else if(DB.settings.firstRun||DB.settings.activeLevel===undefined){showOverlay("level-screen");}
+    else{hideAllOverlays();startApp();}
+  });
+
+  // ── API Key ──
+  $("ak-save-btn").addEventListener("click",()=>{
+    const k=$("ak-input").value.trim();
+    $("ak-err").textContent="";
+    if(!k){$("ak-err").textContent="کلید را وارد کن";return;}
+    if(!k.startsWith("sk-ant-")){$("ak-err").textContent="باید با sk-ant- شروع بشه";return;}
+    saveKey(k);
+    showOverlay("level-screen");
+  });
+  $("ak-input").addEventListener("keydown",e=>{if(e.key==="Enter") $("ak-save-btn").click();});
+
+  // ── Level select ──
+  document.querySelectorAll(".ls-card").forEach(card=>{
+    card.addEventListener("click",()=>{
+      const lv=card.dataset.level;
+      DB.settings.activeLevel=lv; DB.settings.firstRun=false;
+      saveDB(DB); hideAllOverlays(); startApp();
+    });
+  });
+  $("ls-skip").addEventListener("click",()=>{
+    DB.settings.activeLevel="ALL"; DB.settings.firstRun=false;
+    saveDB(DB); hideAllOverlays(); startApp();
+  });
+
+  // ── Tabs ──
+  document.querySelectorAll(".tab").forEach(t=>t.addEventListener("click",()=>switchTab(t.dataset.tab)));
+
+  // ── Card ──
+  $("flashcard").addEventListener("click",e=>{if(!flipped&&!e.target.closest(".audio-btn")) flipCard();});
+  $("flip-btn").addEventListener("click",flipCard);
+  $("af-btn").addEventListener("click",e=>{e.stopPropagation();if(curData) speak(curData.word,e.currentTarget);});
+  $("ab-btn").addEventListener("click",e=>{e.stopPropagation();if(curData) speak(curData.word,e.currentTarget);});
+  ["r0","r1","r2","r3"].forEach((id,i)=>$(id).addEventListener("click",()=>rateCard(i)));
+  $("continue-btn").addEventListener("click",()=>{sessionDone=0;sessionKnown=0;buildQueue();showStudy();});
+
+  // Swipe
+  let tx=null,ty=null;
+  $("flashcard").addEventListener("touchstart",e=>{tx=e.touches[0].clientX;ty=e.touches[0].clientY;},{passive:true});
+  $("flashcard").addEventListener("touchend",e=>{
+    if(!tx||!flipped) return;
+    const dx=e.changedTouches[0].clientX-tx,dy=e.changedTouches[0].clientY-ty;
+    if(Math.abs(dx)>Math.abs(dy)&&Math.abs(dx)>65) rateCard(dx>0?3:0);
+    tx=ty=null;
+  });
+
+  // Words
+  $("word-list").addEventListener("click",e=>{
+    const c=e.target.closest(".word-chip");if(!c) return;
+    queue=[c.dataset.word,...queue.filter(w=>w!==c.dataset.word)];
+    switchTab("study");
+  });
+  $("word-search").addEventListener("input",e=>{wordSearch=e.target.value;renderWords();});
+  document.querySelectorAll(".filter-chip").forEach(fc=>{
+    fc.addEventListener("click",()=>{
+      document.querySelectorAll(".filter-chip").forEach(x=>x.classList.remove("active"));
+      fc.classList.add("active");
+      wordFilter=fc.dataset.filter;
+      if(wordFilter!=="all") fc.style.background=LEVEL_COLORS[wordFilter]+"22";
+      else fc.style.background="";
+      renderWords();
+    });
+  });
+
+  // Fetch
+  $("btn-f50").addEventListener("click",()=>doFetch(50));
+  $("btn-fbulk").addEventListener("click",doBulkFetch);
+  $("btn-reset").addEventListener("click",()=>{
+    if(!confirm("آیا مطمئنی؟ همه پیشرفت‌ها پاک می‌شه!")) return;
+    localStorage.removeItem(DB_KEY);DB=initDB();
+    buildQueue();showStudy();updateFetchUI();updateNavStats();toast("✓ Reset شد");
+  });
+
+  // Config
+  $("d-minus").addEventListener("click",()=>{DB.settings.dailyNew=Math.max(5,(DB.settings.dailyNew||20)-5);saveSetting("dailyNew",DB.settings.dailyNew);renderConfig();});
+  $("d-plus").addEventListener("click",()=>{DB.settings.dailyNew=Math.min(100,(DB.settings.dailyNew||20)+5);saveSetting("dailyNew",DB.settings.dailyNew);renderConfig();});
+  $("ap-sel").addEventListener("change",e=>saveSetting("autoPron",e.target.value));
+  $("ord-sel").addEventListener("change",e=>{saveSetting("order",e.target.value);buildQueue();});
+  $("cfg-save-key").addEventListener("click",()=>{
+    const k=$("cfg-key").value.trim();
+    if(!k||!k.startsWith("sk-ant-")){toast("❌ کلید نادرست");return;}
+    saveKey(k);toast("✓ API Key آپدیت شد!");
+  });
+  $("change-level-btn").addEventListener("click",showLevelScreen);
+  $("nav-level-badge").addEventListener("click",showLevelScreen);
+
+  // About
+  $("share-btn").addEventListener("click",()=>{
+    const url=location.href;
+    if(navigator.share){navigator.share({title:"FlashCards IL",text:"یادگیری لغات انگلیسی - ساخته Ali Reza Bayat",url});}
+    else{navigator.clipboard.writeText(url).then(()=>toast("✓ لینک کپی شد!"));}
+  });
+  $("install-btn").addEventListener("click",triggerInstall);
+
+  // If already set up, go straight in
+  if(getKey()&&!DB.settings.firstRun){
+    $("welcome-screen").classList.remove("hidden");
+  }
+});
+
+function startApp(){
+  $("app-shell").classList.add("visible");
+  buildQueue();showStudy();updateFetchUI();updateNavStats();
+}
+
+if("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js").catch(()=>{});
+</script>
+</body>
+</html>
