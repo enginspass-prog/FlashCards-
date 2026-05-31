@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>API Test</title>
+<style>
+body{background:#06101e;color:#c8ddf8;font-family:monospace;padding:20px;max-width:500px;margin:0 auto}
+input{width:100%;padding:12px;background:#0d1f38;border:1px solid #1a3258;border-radius:10px;color:#fff;font-family:monospace;font-size:12px;margin:10px 0;box-sizing:border-box}
+button{width:100%;padding:14px;background:#1a5fb4;border:none;border-radius:10px;color:#fff;font-size:14px;cursor:pointer;margin:6px 0}
+#result{background:#040a12;border-radius:10px;padding:14px;margin-top:14px;font-size:11px;line-height:1.9;min-height:60px;white-space:pre-wrap;word-break:break-all}
+.ok{color:#4ade80}.err{color:#f87171}.info{color:#60a5fa}
+</style>
+</head>
+<body>
+<h3 style="color:#4a9eff;margin-bottom:16px">🔑 API Test</h3>
+<div style="font-size:10px;color:#6a90bb;margin-bottom:10px">API Key خودت رو وارد کن:</div>
+<input id="key" type="password" placeholder="sk-ant-api03-..."/>
+<button onclick="testAPI()">🧪 تست API</button>
+<div id="result" class="info">نتیجه اینجا نشون داده می‌شه...</div>
+
+<script>
+async function testAPI(){
+  const key = document.getElementById('key').value.trim();
+  const res = document.getElementById('result');
+  
+  if(!key){ res.className='err'; res.textContent='❌ کلید رو وارد کن'; return; }
+  if(!key.startsWith('sk-ant-')){ res.className='err'; res.textContent='❌ کلید باید با sk-ant- شروع بشه'; return; }
+  
+  res.className='info'; res.textContent='⏳ در حال اتصال به سرور...';
+  
+  try{
+    const r = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'x-api-key': key,
+        'anthropic-version':'2023-06-01',
+        'anthropic-dangerous-direct-browser-access':'true'
+      },
+      body: JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:100,
+        messages:[{role:'user',content:'Say "API works!" in JSON: {"status":"ok","message":"API works!"}'}]
+      })
+    });
+    
+    res.textContent += '\n✓ HTTP Status: ' + r.status;
+    
+    const d = await r.json();
+    res.textContent += '\n✓ Response received';
+    
+    if(r.status === 401){ res.className='err'; res.textContent += '\n❌ API Key اشتباه است'; return; }
+    if(r.status === 400){ res.className='err'; res.textContent += '\n❌ Bad request: ' + JSON.stringify(d); return; }
+    if(r.status === 529){ res.className='err'; res.textContent += '\n❌ سرور شلوغه، دوباره امتحان کن'; return; }
+    
+    const text = (d.content||[]).map(c=>c.text||'').join('');
+    res.className='ok';
+    res.textContent = '✅ API کار می‌کند!\n\nپاسخ:\n' + text;
+    
+  }catch(e){
+    res.className='err';
+    res.textContent = '❌ خطا:\n' + e.message + '\n\nاحتمالاً مشکل اتصال اینترنت یا CORS';
+  }
+}
+</script>
+</body>
+</html>
